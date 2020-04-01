@@ -1,4 +1,6 @@
 class ActiveStorage::DownloadableFile
+  attr_reader :url
+
   def initialize(attached)
     if using_local_backend?
       @url = 'file://' + ActiveStorage::Blob.service.path_for(attached.key)
@@ -7,16 +9,22 @@ class ActiveStorage::DownloadableFile
     end
   end
 
-  def url
-    @url
-  end
-
   def self.create_list_from_dossier(dossier)
     pjs = PiecesJustificativesService.liste_pieces_justificatives(dossier)
     pjs.map do |piece_justificative|
       [
         ActiveStorage::DownloadableFile.new(piece_justificative),
-        piece_justificative.filename.to_s
+        "dossier-#{dossier.id}/#{piece_justificative.filename}"
+      ]
+    end
+  end
+
+  def self.create_attachment_list_from_dossier(dossier)
+    pjs = PiecesJustificativesService.liste_pieces_justificatives(dossier)
+    pjs.map do |piece_justificative|
+      [
+        piece_justificative,
+        "dossier-#{dossier.id}/#{piece_justificative.filename}"
       ]
     end
   end

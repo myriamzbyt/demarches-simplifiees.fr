@@ -347,6 +347,8 @@ Rails.application.routes.draw do
             get 'telecharger_pjs' => 'dossiers#telecharger_pjs'
           end
         end
+
+        resources :archives, only: [:index, :create, :show], controller: 'archives'
       end
     end
     resources :avis, only: [:index, :show, :update] do
