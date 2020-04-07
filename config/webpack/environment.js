@@ -9,9 +9,12 @@ const resolve = {
 
 environment.splitChunks();
 environment.config.merge({ resolve });
-environment.loaders.get(
-  'nodeModules'
-).exclude = /(?:@?babel(?:\/|\\{1,2}|-).+)|regenerator-runtime|core-js|^webpack$|^webpack-assets-manifest$|^webpack-cli$|^webpack-sources$|^@rails\/webpacker$|^mapbox-gl$|/;
+const nodeModulesLoader = environment.loaders.get('nodeModules');
+if (!Array.isArray(nodeModulesLoader.exclude)) {
+  nodeModulesLoader.exclude =
+    nodeModulesLoader.exclude == null ? [] : [nodeModulesLoader.exclude];
+}
+nodeModulesLoader.exclude.push(/mapbox-gl/);
 
 // Uncoment next lines to run webpack-bundle-analyzer
 // const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
