@@ -2,9 +2,14 @@ module Instructeurs
   class ArchivesController < InstructeurController
     def index
       @procedure = procedure
+      if !@procedure.publiee?
+        flash[:alert] = "L'accès aux archives n'est disponible que pour les démarches publiées"
+        return redirect_to url_for(@procedure)
+      end
+
       @list_of_months = list_of_months
       @dossiers_termines = @procedure.dossiers.state_termine
-      @poids_total = ProcedureArchiveService::poids_total(@dossiers_termines)
+      @poids_total = ProcedureArchiveService.poids_total(@dossiers_termines)
       @archives = current_instructeur.archives.where(procedure: procedure)
     end
 
