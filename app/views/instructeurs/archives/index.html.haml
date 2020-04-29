@@ -19,7 +19,7 @@
     %thead
       %tr
         %th &nbsp;
-        %th Nombre de dossiers
+        %th Nombre de dossiers terminés
         %th Poids estimé
         %th Télécharger
 
@@ -53,36 +53,35 @@
                   Démander la création
             - else
               &nbsp;
-      - else
-        - @list_of_months.each do |month|
-          - dossiers_termines = @procedure.dossiers.termine_durant(month)
-          - nb_dossiers_termines = dossiers_termines.count
-          - matching_archive = @archives.find_by(content_type: 'monthly', month: month)
-          %tr
-            %td
-              = I18n.l(month, format: "%B %Y")
-            %td
-              = nb_dossiers_termines
-            %td
-              - if matching_archive.present? && matching_archive.available?
-                - weight = matching_archive.file.byte_size
-              - else
-                - weight = ProcedureArchiveService::poids_total(dossiers_termines)
-              = number_to_human_size(weight)
-            %td
-              - if nb_dossiers_termines > 0
-                - if matching_archive.present?
-                  - if matching_archive.status == 'generated' && matching_archive.file.attached?
-                    = link_to instructeur_archive_path(@procedure, matching_archive), class: 'button primary' do
-                      %span.icon.download-white
-                      Télécharger
-                  - else
-                    %span.icon.retry
-                    Archive en cours de création
+      - @list_of_months.each do |month|
+        - dossiers_termines = @procedure.dossiers.termine_durant(month)
+        - nb_dossiers_termines = dossiers_termines.count
+        - matching_archive = @archives.find_by(content_type: 'monthly', month: month)
+        %tr
+          %td
+            = I18n.l(month, format: "%B %Y")
+          %td
+            = nb_dossiers_termines
+          %td
+            - if matching_archive.present? && matching_archive.available?
+              - weight = matching_archive.file.byte_size
+            - else
+              - weight = ProcedureArchiveService::poids_total(dossiers_termines)
+            = number_to_human_size(weight)
+          %td
+            - if nb_dossiers_termines > 0
+              - if matching_archive.present?
+                - if matching_archive.status == 'generated' && matching_archive.file.attached?
+                  = link_to instructeur_archive_path(@procedure, matching_archive), class: 'button primary' do
+                    %span.icon.download-white
+                    Télécharger
                 - else
-                  = link_to instructeur_archives_path(@procedure, type:'monthly', month: month.strftime('%Y-%m')), method: :post, class: "button", remote: true do
-                    %span.icon.new-folder
-                    Démander la création
+                  %span.icon.retry
+                  Archive en cours de création
               - else
-                &nbsp;
+                = link_to instructeur_archives_path(@procedure, type:'monthly', month: month.strftime('%Y-%m')), method: :post, class: "button", remote: true do
+                  %span.icon.new-folder
+                  Démander la création
+            - else
+              &nbsp;
 
