@@ -9,7 +9,7 @@ module Instructeurs
 
       @list_of_months = list_of_months
       @dossiers_termines = @procedure.dossiers.state_termine
-      @poids_total = ProcedureArchiveService.poids_total(@dossiers_termines)
+      @poids_total = ProcedureArchiveService.poids_total_procedure(@procedure)
       @archives = current_instructeur.archives.where(procedure: procedure)
     end
 
@@ -17,7 +17,7 @@ module Instructeurs
       type = params[:type]
       month = Date.strptime(params[:month], '%Y-%m') if params[:month].present?
 
-      ProcedureArchiveService.new(procedure).create_archive(current_instructeur, type, month)
+      ArchiveCreationJob.perform_later(procedure, current_instructeur, type, month)
       flash[:notice] = "Votre demande a été prise en compte. Selon le nombre de dossiers, cela peut prendre quelques minutes. Vous recevrez un courriel lorsque le fichier sera disponible."
       redirect_to instructeur_archives_path
     end

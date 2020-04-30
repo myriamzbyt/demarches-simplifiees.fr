@@ -122,7 +122,7 @@ class Dossier < ApplicationRecord
   scope :en_instruction,              -> { not_archived.state_en_instruction }
   scope :termine,                     -> { not_archived.state_termine }
   scope :termine_durant,              -> (month) do
-    not_archived.state_termine.where(processed_at: month.beginning_of_month..month.end_of_month)
+    state_termine.where(processed_at: month.beginning_of_month..month.end_of_month)
   end
   scope :downloadable_sorted, -> {
     state_not_brouillon
