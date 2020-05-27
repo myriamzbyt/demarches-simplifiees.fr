@@ -17,7 +17,7 @@ module Instructeurs
       type = params[:type]
       month = Date.strptime(params[:month], '%Y-%m') if params[:month].present?
 
-      ArchiveCreationJob.perform_later(procedure, current_instructeur, type, month)
+      ArchiveCreationJob.perform_now(procedure, current_instructeur, type, month)
       flash[:notice] = "Votre demande a été prise en compte. Selon le nombre de dossiers, cela peut prendre quelques minutes. Vous recevrez un courriel lorsque le fichier sera disponible."
       redirect_to instructeur_archives_path
     end
@@ -48,7 +48,7 @@ module Instructeurs
     def procedure
       current_instructeur
         .procedures
-        .includes(:groupe_instructeurs)
+        .for_download
         .find(params[:procedure_id])
     end
   end

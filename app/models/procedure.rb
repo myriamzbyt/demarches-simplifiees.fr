@@ -78,6 +78,20 @@ class Procedure < ApplicationRecord
     includes(administrateurs: :user)
   }
 
+  scope :for_download, -> {
+    includes(
+      :groupe_instructeurs,
+      dossiers: {
+        champs: [
+          piece_justificative_file_attachment: :blob,
+          champs: [
+            piece_justificative_file_attachment: :blob
+          ]
+        ]
+      }
+    )
+  }
+
   validates :libelle, presence: true, allow_blank: false, allow_nil: false
   validates :description, presence: true, allow_blank: false, allow_nil: false
   validates :administrateurs, presence: true

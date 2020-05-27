@@ -49,45 +49,13 @@ class ProcedureArchiveService
   end
 
   def self.poids_total_procedure(procedure)
-    raw_select = <<-SQL
-    select
-      sum(bl.byte_size) as poids_total
-    from
-      active_storage_attachments asa
-      left join active_storage_blobs bl on bl.id = asa.blob_id
-      left join champs c on c.id = asa.record_id
-      left join types_de_champ tdc on tdc.id = c.type_de_champ_id
-      left join procedures p on p.id = tdc.procedure_id
-    where
-      p.id = #{procedure.id};
-    SQL
-
-    pg = ActiveRecord::Base.connection.execute(raw_select)
-
-    pg.first['poids_total'].to_i
+    poids_total_dossiers(procedure.dossiers)
   end
 
   def self.poids_total_dossiers(dossiers)
-    return 0 if dossiers.empty?
-
-    ids = dossiers.pluck(:id).join(',')
-
-    raw_select = <<-SQL
-    select
-      sum(bl.byte_size) as poids_total
-    from
-      active_storage_attachments asa
-      left join active_storage_blobs bl on bl.id = asa.blob_id
-      left join champs c on c.id = asa.record_id
-      left join types_de_champ tdc on tdc.id = c.type_de_champ_id
-      left join procedures p on p.id = tdc.procedure_id
-    where
-      c.dossier_id in (#{ids});
-    SQL
-
-    pg = ActiveRecord::Base.connection.execute(raw_select)
-
-    pg.first['poids_total']
+    dossiers.map do |dossier|
+      liste_pieces_justificatives(dossier).sum(&:byte_size)
+    end.sum
   end
 
   def create_list_of_attachments(dossiers)
@@ -97,6 +65,21 @@ class ProcedureArchiveService
   end
 
   private
+
+  def self.champs_pieces_justificatives_with_attachments(champs)
+    champs
+      .filter { |c| c.type_champ == TypeDeChamp.type_champs.fetch(:piece_justificative) }
+      .filter { |pj| pj.piece_justificative_file.attached? }
+      .map(&:piece_justificative_file)
+  end
+
+  def self.liste_pieces_justificatives(dossier)
+    champs_blocs_repetables = dossier.champs
+      .filter { |c| c.type_champ == TypeDeChamp.type_champs.fetch(:repetition) }
+      .flat_map(&:champs)
+
+    champs_pieces_justificatives_with_attachments(champs_blocs_repetables + dossier.champs)
+  end
 
   def dossier_pdf_link(dossier)
     Rails.application.routes.url_helpers.instructeur_dossier_url(@procedure, dossier, format: :pdf)
