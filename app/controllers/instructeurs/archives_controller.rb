@@ -13,12 +13,12 @@ module Instructeurs
       @archives = current_instructeur.archives.where(procedure: procedure)
     end
 
-    def create
+    def create_archive
       type = params[:type]
       month = Date.strptime(params[:month], '%Y-%m') if params[:month].present?
 
-      ArchiveCreationJob.perform_now(procedure, current_instructeur, type, month)
       flash[:notice] = "Votre demande a été prise en compte. Selon le nombre de dossiers, cela peut prendre quelques minutes. Vous recevrez un courriel lorsque le fichier sera disponible."
+      ArchiveCreationJob.perform_now(procedure, current_instructeur, type, month)
       redirect_to instructeur_archives_path
     end
 
