@@ -22,34 +22,54 @@ feature 'usager', js: true do
   let(:password) { 'a very complicated password' }
   let(:litteraire_user) { create(:user, password: password) }
 
-  scenario 'the homepage has valid HTML' do
-    visit root_path
-    expect(page).to have_w3c_valid_html
-  end
+  context 'pages without the need to be logged in' do
+    scenario 'the homepage has valid HTML' do
+      visit root_path
+      expect(page).to have_w3c_valid_html
+    end
 
-  scenario 'the sign_up pages have valid HTML' do
-    visit new_user_registration_path
-    expect(page).to have_w3c_valid_html
+    scenario 'the sign_up pages have valid HTML' do
+      visit new_user_registration_path
+      expect(page).to have_w3c_valid_html
 
-    fill_in :user_email, with: "some@email.com"
-    fill_in :user_password, with: "epeciusetuir"
+      fill_in :user_email, with: "some@email.com"
+      fill_in :user_password, with: "epeciusetuir"
 
-    perform_enqueued_jobs do
-      click_button 'Créer un compte'
+      perform_enqueued_jobs do
+        click_button 'Créer un compte'
+        expect(page).to have_w3c_valid_html
+      end
+    end
+
+    scenario 'the sign_in page has valid HTML' do
+      visit new_user_session_path
+      expect(page).to have_w3c_valid_html
+    end
+
+    scenario 'the contact page has valid HTML' do
+      visit contact_path
+      expect(page).to have_w3c_valid_html
+    end
+
+    scenario 'the commencer page has valid HTML' do
+      visit commencer_path(path: procedure.reload.path)
       expect(page).to have_w3c_valid_html
     end
   end
 
-  scenario 'the sign_in page has valid HTML' do
-    visit new_user_session_path
-    expect(page).to have_w3c_valid_html
-  end
-
-  scenario 'the commencer page has valid HTML' do
-    visit commencer_path(path: procedure.reload.path)
-    expect(page).to have_w3c_valid_html
-  end
-
+  # todo: ajouter les tests sur les pages logguées
+  # Pages logguées:
+  #   - identité
+  #   - personne physique
+  # - personne morale
+  #
+  # - formulaire de dépot de dossier
+  # - merci
+  # - liste des dossiers
+  # - résumé
+  # - demande
+  # - messagerie
+  #
   # def user_send_dossier(user)
   #   login_as user, scope: :user
   #   visit commencer_path(path: procedure.reload.path)
