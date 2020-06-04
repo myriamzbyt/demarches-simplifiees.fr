@@ -5,15 +5,22 @@ include W3CValidators
 RSpec::Matchers.define :have_w3c_valid_html do |_|
   validator = NuValidator.new(:validator_uri => 'http://localhost:8888/')
 
+  def clean_errors(errors)
+    # for some reason, there is no <!DOCTYPE html> in capybara's HTML, whereas it is present in dev/prod
+    errors.reject do |e|
+      e.message.include?("Start tag seen without seeing a doctype first")
+    end
+  end
+
   match do |page|
     results = validator.validate_text(page.html)
 
-    results.errors.length == 0
+    clean_errors(results.errors).length == 0
   end
 
   failure_message do |page|
     results = validator.validate_text(page.html)
-    "url #{page.current_path} should have valid HTML:\n" + results.errors.join("\n")
+    "url #{page.current_path} should have valid HTML:\n" + clean_errors(results.errors).join("\n")
   end
 end
 
@@ -89,6 +96,16 @@ feature 'usager', js: true do
 
     scenario 'messagerie' do
       visit messagerie_dossier_path(dossier)
+      expect(page).to have_w3c_valid_html
+    end
+
+    scenario 'modifier' do
+      visit modifier_dossier_path(dossier)
+      expect(page).to have_w3c_valid_html
+    end
+
+    scenario 'brouillon' do
+      visit brouillon_dossier_path(dossier)
       expect(page).to have_w3c_valid_html
     end
   end
