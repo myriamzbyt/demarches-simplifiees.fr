@@ -57,18 +57,57 @@ feature 'usager', js: true do
     end
   end
 
+  context "logged in, depot d'un dossier" do
+
+  end
+
+  context "logged in, avec des dossiers dossiers déposés" do
+    let(:dossier) { create(:dossier, procedure: procedure, user: litteraire_user) }
+    before do
+      login_as litteraire_user, scope: :user
+    end
+
+    scenario 'liste des dossiers' do
+      visit dossiers_path
+      expect(page).to have_w3c_valid_html
+    end
+
+    scenario 'dossier' do
+      visit dossier_path(dossier)
+      expect(page).to have_w3c_valid_html
+    end
+
+    scenario 'merci' do
+      visit merci_dossier_path(dossier)
+      expect(page).to have_w3c_valid_html
+    end
+
+    scenario 'demande' do
+      visit demande_dossier_path(dossier)
+      expect(page).to have_w3c_valid_html
+    end
+
+    scenario 'messagerie' do
+      visit messagerie_dossier_path(dossier)
+      expect(page).to have_w3c_valid_html
+    end
+  end
+
   # todo: ajouter les tests sur les pages logguées
   # Pages logguées:
   #   - identité
-  #   - personne physique
-  # - personne morale
-  #
-  # - formulaire de dépot de dossier
-  # - merci
-  # - liste des dossiers
-  # - résumé
-  # - demande
-  # - messagerie
+  #    - personne physique
+  #    - personne morale
+  #     (+ écran de récap d'un établissement)
+  # - formulaire de dépot de dossier:
+  #   - depot initial
+  #   - modifier
+  #   - brouillon
+  # - x merci
+  # - x liste des dossiers
+  # - x résumé
+  # - x demande
+  # - x messagerie
   #
   # def user_send_dossier(user)
   #   login_as user, scope: :user
