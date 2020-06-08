@@ -65,7 +65,20 @@ feature 'usager', js: true do
   end
 
   context "logged in, depot d'un dossier" do
+    before do
+      login_as litteraire_user, scope: :user
+      visit commencer_path(path: procedure.reload.path)
+    end
 
+    scenario 'écran identité' do
+      click_on 'Commencer la démarche'
+      expect(page).to have_w3c_valid_html
+
+      #   choose 'M.'
+      #   fill_in 'individual_nom',    with: 'Nom'
+      #   fill_in 'individual_prenom', with: 'Prenom'
+      #   click_button('Continuer')
+    end
   end
 
   context "logged in, avec des dossiers dossiers déposés" do
