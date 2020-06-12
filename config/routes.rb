@@ -202,8 +202,6 @@ Rails.application.routes.draw do
       post 'transfer' => 'procedures#transfer', as: :transfer
       put 'clone' => 'procedures#clone', as: :clone
 
-      resource :assigns, only: [:show, :update], path: 'instructeurs'
-
       resource :attestation_template, only: [:edit, :update, :create]
 
       post 'attestation_template/disactivate' => 'attestation_templates#disactivate'
@@ -390,6 +388,13 @@ Rails.application.routes.draw do
       end
 
       resources :administrateurs, controller: 'procedure_administrateurs', only: [:index, :create, :destroy]
+
+      resource :instructeurs, only: [:show], path: 'instructeurs' do
+        member do
+          post 'add_instructeurs'
+          patch 'remove_instructeur'
+        end
+      end
 
       resources :types_de_champ, only: [:create, :update, :destroy] do
         member do

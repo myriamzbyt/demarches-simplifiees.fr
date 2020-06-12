@@ -44,7 +44,7 @@ describe Admin::InstructeursController, type: :controller do
         let(:procedure_id) { procedure.id }
 
         it { expect(response.status).to eq(302) }
-        it { expect(response).to redirect_to admin_procedure_assigns_path(procedure_id: procedure_id) }
+        it { expect(response).to redirect_to procedure_instructeurs_path(procedure_id: procedure_id) }
       end
 
       describe 'Instructeur attributs in database' do

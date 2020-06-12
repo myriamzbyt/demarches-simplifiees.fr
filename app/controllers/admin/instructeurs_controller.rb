@@ -21,7 +21,7 @@ class Admin::InstructeursController < AdminController
     end
 
     if procedure_id.present?
-      redirect_to admin_procedure_assigns_path(procedure_id: procedure_id)
+      redirect_to procedure_instructeurs_path(procedure_id: procedure_id)
     else
       redirect_to admin_instructeurs_path
     end

@@ -1,0 +1,43 @@
+= render partial: 'new_administrateur/breadcrumbs',
+  locals: { steps: [link_to('Démarches', admin_procedures_path),
+                    link_to(@procedure.libelle, admin_procedure_path(@procedure)),
+                    'Instructeurs'] }
+
+.container.groupe-instructeur
+  .card
+    .card-title Ajouter des instructeurs
+
+    = form_for :instructeur,
+      url: { action: :add_instructeurs },
+      html: { class: 'form' } do |f|
+      %p.notice Entrez les adresses email des instructeurs que vous souhaitez affecter à cette démarche
+      .instructeur-wrapper
+        = select_tag :emails,
+          options_for_select(@instructeurs_not_assign_emails),
+          multiple: true,
+          class: 'select-instructeurs select2-limited',
+          id: 'add-instructeurs'
+
+      = f.submit 'Ajouter', class: 'button primary send'
+    %br
+    .card-title #{@instructeurs_assign.count} instructeurs affectés
+
+    - if @instructeurs_assign.empty?
+      %h4 Aucun affecté
+
+    - else
+
+      %table.table#liste-instructeur
+        %thead
+          %th
+          %th
+
+        - @instructeurs_assign.each do |instructeur|
+          %tr
+            %td
+              = instructeur.email
+            %td
+              = link_to "retirer", remove_instructeur_procedure_instructeurs_path(procedure_id: @procedure.id, instructeur_id: instructeur.id), class: "button", method: :patch
+
+
+
