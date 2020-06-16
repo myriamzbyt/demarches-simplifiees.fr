@@ -10,7 +10,8 @@
 
     %fieldset
       %legend
-        = f.label :gender
+        %h2.form-label Civilité
+        .notice Si le demandeur n'est pas le bénéficiaire, merci d'entrer l'identité du demandeur.
       .radios
         %label
           = f.radio_button :gender, Individual::GENDER_MALE, required: true
