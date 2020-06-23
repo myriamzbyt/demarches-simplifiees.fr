@@ -389,13 +389,6 @@ Rails.application.routes.draw do
 
       resources :administrateurs, controller: 'procedure_administrateurs', only: [:index, :create, :destroy]
 
-      resource :instructeurs, only: [:show], path: 'instructeurs' do
-        member do
-          post 'add_instructeurs'
-          patch 'remove_instructeur'
-        end
-      end
-
       resources :types_de_champ, only: [:create, :update, :destroy] do
         member do
           patch :move

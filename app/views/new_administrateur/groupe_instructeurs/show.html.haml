@@ -1,20 +1,20 @@
-= render partial: 'new_administrateur/breadcrumbs',
-  locals: { steps: [link_to('Démarches', admin_procedures_path),
-                    link_to(@procedure.libelle, admin_procedure_path(@procedure)),
-                    link_to('Groupes d’instructeurs', procedure_groupe_instructeurs_path(@procedure)),
-                    @groupe_instructeur.label] }
+
+- if feature_enabled?(:administrateur_routage)
+  = render partial: 'new_administrateur/breadcrumbs',
+    locals: { steps: [link_to('Démarches', admin_procedures_path),
+                      link_to(@procedure.libelle, admin_procedure_path(@procedure)),
+                      link_to('Groupes d’instructeurs', procedure_groupe_instructeurs_path(@procedure)),
+                      @groupe_instructeur.label] }
+- else
+  = render partial: 'new_administrateur/breadcrumbs',
+    locals: { steps: [link_to('Démarches', admin_procedures_path),
+                      link_to(@procedure.libelle, admin_procedure_path(@procedure)),
+                      'Instructeurs'] }
 
 .container.groupe-instructeur
-  %h1 Groupe « #{@groupe_instructeur.label} »
 
-  .card.mt-2
-    = form_for @groupe_instructeur,
-      url: procedure_groupe_instructeur_path(@procedure, @groupe_instructeur),
-      html: { class: 'form' } do |f|
-
-      = f.label :label, 'Nom du groupe'
-      = f.text_field :label, placeholder: 'Ville de Bordeaux', required: true
-      = f.submit 'Renommer', class: 'button primary send'
+  - if feature_enabled?(:administrateur_routage)
+    = render partial: 'new_administrateur/groups_header'
 
   .card
     .card-title Affectation des instructeurs
@@ -23,6 +23,8 @@
       html: { class: 'form' } do |f|
 
       .instructeur-wrapper
+        - if !feature_enabled?(:administrateur_routage)
+          %p.notice Entrez les adresses email des instructeurs que vous souhaitez affecter à cette démarche
         = select_tag :emails,
           options_for_select(@available_instructeur_emails),
           multiple: true,
