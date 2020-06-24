@@ -127,7 +127,6 @@ module NewAdministrateur
     end
 
     def remove_instructeur
-      
       if groupe_instructeur.instructeurs.one?
         flash[:alert] = "Suppression impossible : il doit y avoir au moins un instructeur dans le groupe"
       else
