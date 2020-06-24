@@ -100,32 +100,51 @@ module NewAdministrateur
             create_instructeur(instructeur_email)
         end
 
-        groupe_instructeur.instructeurs << instructeurs
+        if feature_enabled?(:administrateur_routage)
+          groupe_instructeur.instructeurs << instructeurs
 
-        GroupeInstructeurMailer
-          .add_instructeurs(groupe_instructeur, instructeurs, current_user.email)
-          .deliver_later
+          GroupeInstructeurMailer
+            .add_instructeurs(groupe_instructeur, instructeurs, current_user.email)
+            .deliver_later
 
-        flash[:notice] = t('.assignment',
-          count: email_to_adds.count,
-          value: email_to_adds.join(', '),
-          groupe: groupe_instructeur.label)
+          flash[:notice] = t('.assignment',
+            count: email_to_adds.count,
+            value: email_to_adds.join(', '),
+            groupe: groupe_instructeur.label)
+
+        else
+          if instructeurs.present?
+            instructeurs.map do |instructeur|
+              instructeur.assign_to_procedure(procedure)
+            end
+            flash[:notice] = "Les instructeurs ont bien été affectés"
+          end
+
+        end
       end
 
       redirect_to procedure_groupe_instructeur_path(procedure, groupe_instructeur)
     end
 
     def remove_instructeur
+      
       if groupe_instructeur.instructeurs.one?
         flash[:alert] = "Suppression impossible : il doit y avoir au moins un instructeur dans le groupe"
-
       else
-        @instructeur = Instructeur.find(instructeur_id)
-        groupe_instructeur.instructeurs.destroy(@instructeur)
-        flash[:notice] = "L’instructeur « #{@instructeur.email} » a été retiré du groupe."
-        GroupeInstructeurMailer
-          .remove_instructeur(groupe_instructeur, @instructeur, current_user.email)
-          .deliver_later
+
+        if feature_enabled?(:administrateur_routage)
+          @instructeur = Instructeur.find(instructeur_id)
+          groupe_instructeur.instructeurs.destroy(@instructeur)
+          flash[:notice] = "L’instructeur « #{@instructeur.email} » a été retiré du groupe."
+          GroupeInstructeurMailer
+            .remove_instructeur(groupe_instructeur, @instructeur, current_user.email)
+            .deliver_later
+        else
+          @instructeur = Instructeur.find(instructeur_id)
+          @instructeur.remove_from_procedure(procedure)
+          flash.notice = "L'instructeur a bien été retiré"
+
+        end
       end
 
       redirect_to procedure_groupe_instructeur_path(procedure, groupe_instructeur)

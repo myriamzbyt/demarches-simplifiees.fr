@@ -107,7 +107,7 @@
             .alert.alert-info
               Pour pouvoir tester cette démarche, vous devez d’abord lui affecter
               - if @procedure.missing_instructeurs?
-                = link_to("des instructeurs", procedure_instructeurs_path(@procedure))
+                = link_to("des instructeurs", procedure_groupe_instructeur_path(@procedure, @procedure.defaut_groupe_instructeur))
               - if @procedure.missing_instructeurs? && @procedure.service.nil?
                 et
               - if @procedure.service.nil?
