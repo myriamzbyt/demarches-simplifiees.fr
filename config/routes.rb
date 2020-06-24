@@ -377,6 +377,7 @@ Rails.application.routes.draw do
       resources :groupe_instructeurs, only: [:index, :show, :create, :update, :destroy] do
         member do
           post 'add_instructeur'
+          post 'add_instructeur_no_routage'
           delete 'remove_instructeur'
           get 'reaffecter_dossiers'
           post 'reaffecter'

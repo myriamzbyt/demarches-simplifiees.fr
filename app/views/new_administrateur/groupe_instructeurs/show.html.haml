@@ -19,7 +19,7 @@
   .card
     .card-title Affectation des instructeurs
     = form_for :instructeur,
-      url: { action: :add_instructeur },
+      url: { action: feature_enabled?(:administrateur_routage) ? :add_instructeur : :add_instructeur_no_routage },
       html: { class: 'form' } do |f|
 
       .instructeur-wrapper

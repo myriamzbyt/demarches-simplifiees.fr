@@ -79,6 +79,29 @@ module NewAdministrateur
       redirect_to procedure_groupe_instructeurs_path(procedure)
     end
 
+    def instructeur_emails
+      emails = params['emails'].presence || []
+      emails = emails.map(&:strip).map(&:downcase)
+
+      correct_emails, bad_emails = emails
+        .partition { |email| URI::MailTo::EMAIL_REGEXP.match?(email) }
+
+      if bad_emails.present?
+        flash[:alert] = t('.wrong_address',
+          count: bad_emails.count,
+          value: bad_emails.join(', '))
+      end
+
+      email_to_adds = correct_emails - groupe_instructeur.instructeurs.map(&:email)
+
+      if email_to_adds.present?
+        email_to_adds.map do |instructeur_email|
+          Instructeur.by_email(instructeur_email) ||
+            create_instructeur(instructeur_email)
+        end
+      end
+    end
+
     def add_instructeur
       emails = params['emails'].presence || []
       emails = emails.map(&:strip).map(&:downcase)
@@ -100,29 +123,29 @@ module NewAdministrateur
             create_instructeur(instructeur_email)
         end
 
-        if feature_enabled?(:administrateur_routage)
-          groupe_instructeur.instructeurs << instructeurs
+        groupe_instructeur.instructeurs << instructeurs
 
-          GroupeInstructeurMailer
-            .add_instructeurs(groupe_instructeur, instructeurs, current_user.email)
-            .deliver_later
+        GroupeInstructeurMailer
+          .add_instructeurs(groupe_instructeur, instructeurs, current_user.email)
+          .deliver_later
 
-          flash[:notice] = t('.assignment',
-            count: email_to_adds.count,
-            value: email_to_adds.join(', '),
-            groupe: groupe_instructeur.label)
+        flash[:notice] = t('.assignment',
+          count: email_to_adds.count,
+          value: email_to_adds.join(', '),
+          groupe: groupe_instructeur.label)
 
-        else
-          if instructeurs.present?
-            instructeurs.map do |instructeur|
-              instructeur.assign_to_procedure(procedure)
-            end
-            flash[:notice] = "Les instructeurs ont bien été affectés"
-          end
-
-        end
       end
 
+      redirect_to procedure_groupe_instructeur_path(procedure, groupe_instructeur)
+    end
+
+    def add_instructeur_no_routage
+      if instructeur_emails.present?
+        instructeur_emails.map do |instructeur|
+          instructeur.assign_to_procedure(procedure)
+        end
+        flash[:notice] = "Les instructeurs ont bien été affectés"
+      end
       redirect_to procedure_groupe_instructeur_path(procedure, groupe_instructeur)
     end
 
